@@ -1,0 +1,73 @@
+version: "3"
+services:
+  database:
+    image: 'library/postgres'
+    hostname: database
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=nemesis_passwd
+    networks:
+      nemesis_net:
+        ipv4_address: 172.20.0.8
+  logic:
+    image: 'nemesis-logic'
+    hostname: logic
+    restart: always
+    environment:
+      - NEMESIS_USER=nemesis_user
+      - NEMESIS_PASSWD=nemesis_passwd
+      - NEMESIS_HOST=172.20.0.8
+      - NEMESIS_DB=nemesis_db
+      - LOGIC_ADDR=172.20.0.9
+      - LOGIC_PORT=5555
+      - LOGIC_NAME=logic
+      - LOGIC_HEARTBEAT_PORT=5550
+    networks:
+      nemesis_net:
+        ipv4_address: 172.20.0.9
+    volumes:
+      - './data:/srv/nemesis'
+    depends_on:
+      - database
+  worker_01:
+    image: 'nemesis-worker'
+    hostname: worker_01
+    restart: always
+    environment:
+      - WORKER_ID=1
+      - WORKER_PORT=5560
+      - WORKER_NAME=worker-01
+      - WORKER_ADDR=172.20.0.11
+      - LOGIC_ADDR=172.20.0.9
+      - LOGIC_PORT=5555
+      - HEARTBEAT_PORT=5550
+    networks:
+      nemesis_net:
+        ipv4_address: 172.20.0.11
+    privileged: true
+    depends_on:
+      - logic
+  worker_02:
+    image: 'nemesis-worker'
+    hostname: worker_02
+    restart: always
+    environment:
+      - WORKER_ID=2
+      - WORKER_PORT=5560
+      - WORKER_NAME=worker-02
+      - WORKER_ADDR=172.20.0.12
+      - LOGIC_ADDR=172.20.0.9
+      - LOGIC_PORT=5555
+      - HEARTBEAT_PORT=5550
+    networks:
+      nemesis_net:
+        ipv4_address: 172.20.0.12
+    privileged: true
+    depends_on:
+      - logic
+networks:
+  nemesis_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16

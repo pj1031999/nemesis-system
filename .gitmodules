@@ -1,0 +1,6 @@
+[submodule "nemesis-worker"]
+	path = nemesis-worker
+	url = git@github.com:pj1031999/nemesis-worker.git
+[submodule "nemesis-logic"]
+	path = nemesis-logic
+	url = git@github.com:pj1031999/nemesis-logic.git
